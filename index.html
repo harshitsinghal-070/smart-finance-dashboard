@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Finance Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 420px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      padding: 12px;
+      width: 95%;
+      margin-top: 10px;
+      background: #22c55e;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .card {
+      background: #334155;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 10px;
+    }
+
+    canvas {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>💰 Smart Finance Dashboard</h1>
+
+<div class="box">
+  <input type="number" id="income" placeholder="Monthly Income">
+  <input type="number" id="expenses" placeholder="Expenses">
+  <input type="number" id="emi" placeholder="EMI">
+
+  <button onclick="analyze()">Analyze</button>
+
+  <div id="result"></div>
+
+  <canvas id="chart"></canvas>
+
+  <button onclick="shareWhatsApp()">📲 Share on WhatsApp</button>
+</div>
+
+<script>
+let chart;
+
+function analyze() {
+  let income = +document.getElementById("income").value;
+  let expenses = +document.getElementById("expenses").value;
+  let emi = +document.getElementById("emi").value;
+
+  let savings = income - expenses - emi;
+  let savingRate = (savings / income) * 100;
+
+  // Score
+  let score = 0;
+  if (savingRate >= 20) score += 40;
+  if ((emi / income) * 100 <= 30) score += 30;
+  if ((expenses / income) * 100 <= 60) score += 30;
+
+  // Budget allocation
+  let needs = income * 0.5;
+  let wants = income * 0.3;
+  let idealSavings = income * 0.2;
+
+  // Future projection (5 years)
+  let future = savings * 12 * 5;
+
+  // Suggestions
+  let suggestion = "";
+  if (savingRate < 20) {
+    suggestion = "Cut expenses & increase savings";
+  } else {
+    suggestion = "Good financial health";
+  }
+
+  if ((emi / income) * 100 > 40) {
+    suggestion += "<br>Reduce EMI burden";
+  }
+
+  // Color
+  let color = "lightgreen";
+  if (score < 50) color = "red";
+  else if (score < 75) color = "orange";
+
+  document.getElementById("result").innerHTML = `
+    <div class="card">💰 Savings: ₹${savings}</div>
+    <div class="card">📊 Saving Rate: ${savingRate.toFixed(1)}%</div>
+    <div class="card" style="color:${color}">🔥 Score: ${score}/100</div>
+
+    <div class="card">🏠 Needs: ₹${needs}</div>
+    <div class="card">🛍 Wants: ₹${wants}</div>
+    <div class="card">💰 Ideal Savings: ₹${idealSavings}</div>
+
+    <div class="card">📈 5 Year Projection: ₹${future}</div>
+
+    <div class="card">💡 ${suggestion}</div>
+  `;
+
+  // Chart
+  if (chart) chart.destroy();
+
+  chart = new Chart(document.getElementById("chart"), {
+    type: 'pie',
+    data: {
+      labels: ['Expenses', 'EMI', 'Savings'],
+      datasets: [{
+        data: [expenses, emi, savings]
+      }]
+    }
+  });
+}
+
+// WhatsApp share
+function shareWhatsApp() {
+  let income = document.getElementById("income").value;
+  let expenses = document.getElementById("expenses").value;
+  let emi = document.getElementById("emi").value;
+
+  let savings = income - expenses - emi;
+
+  let msg = `💰 My Finance Report:
+Income: ₹${income}
+Expenses: ₹${expenses}
+EMI: ₹${emi}
+Savings: ₹${savings}
+
+Try this tool!`;
+
+  let url = "https://wa.me/?text=" + encodeURIComponent(msg);
+  window.open(url, "_blank");
+}
+</script>
+
+</body>
+</html>
